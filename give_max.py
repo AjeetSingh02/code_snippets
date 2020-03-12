@@ -18,3 +18,8 @@ def give_max(inp1, inp2):
         result_list.append(sum(x > -1 for x in subtract))
 
     return result_list.index(max(result_list)) + 1
+
+
+inp1 = 8
+inp2 = "1 2 3 1 4 1 0 2"
+print(give_max(inp1, inp2))
