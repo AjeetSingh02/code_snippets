@@ -11,7 +11,8 @@ def ngrams(string, n=3):
     return [''.join(ngram) for ngram in ngrams]
 
 
-def dummyFunc(series):
+def dummyFunc(series, masterDict):
+    
     corrSum = 0
     feat = ""
     if df[series].dtypes in ("int64", "float64"):
@@ -22,29 +23,24 @@ def dummyFunc(series):
     else:
         for string in df[series]:
             feat = ngrams(string)
-            
-    return corrSum, feat
+
+    masterDict[series] = feat[:20]
 
 
-start1 = time.time()
-list(map(dummyFunc, df.columns))
-end1 = time.time()
-print(end1 - start1)
+from multiprocessing import Process, Manager
 
-
-start = time.time()
-with Pool(processes = os.cpu_count()-1) as pool:
-    pool.map(dummyFunc, df.columns)
-end = time.time()
-print(end - start)
-
-
-start2 = time.time()
-jobs = []
-for i in range(df.shape[1]):
-    p = Process(target=dummyFunc, args=(df.columns[i], ))
-    jobs.append(p)
-    p.start()
+if __name__ == '__main__':
+    manager = Manager()
     
-end2 = time.time()
-print(end2-start2)
+    d = manager.dict()
+
+    jobs = []
+    for i in range(df.shape[1]):
+        p = Process(target=dummyFunc, args=(df.columns[i], d))
+        jobs.append(p)
+        p.start()
+
+    for i in range(df.shape[1]):
+        jobs[i].join()
+
+    print("master", d)
