@@ -2,6 +2,7 @@ import re
 import os
 import time
 from multiprocessing import Pool
+from multiprocessing import Process
 
 
 def ngrams(string, n=3):
@@ -36,3 +37,14 @@ with Pool(processes = os.cpu_count()-1) as pool:
     pool.map(dummyFunc, df.columns)
 end = time.time()
 print(end - start)
+
+
+start2 = time.time()
+jobs = []
+for i in range(df.shape[1]):
+    p = Process(target=dummyFunc, args=(df.columns[i], ))
+    jobs.append(p)
+    p.start()
+    
+end2 = time.time()
+print(end2-start2)
